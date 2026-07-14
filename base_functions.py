@@ -86,7 +86,6 @@ def extract_shipment_date(
     # Если ничего не подошло, возвращаем исходное значение
     return value_str if return_as_string else None
 
-
 def find_nakl_numbers(
     nakl_search: str, 
     data_file: str = 'base_data.json',
@@ -428,10 +427,6 @@ def divide_on_otpr(
 
     return grouped    
 
-import json
-from typing import List, Dict, Any, Union
-
-
 def cargos_by_art(cargos_string: str) -> Dict[str, Any]:
     """
     Обрабатывает строку с грузами и возвращает список проектов и сумму грузов по артикулам.
@@ -535,11 +530,129 @@ def cargos_by_art(cargos_string: str) -> Dict[str, Any]:
         'total_items': len(cargos_result)
     }
 
+def cargos_by_project(cargos_string: str) -> List[Dict[str, Any]]:
+    """
+    Группирует грузы по проектам из строки с грузами.
+    
+    Args:
+        cargos_string: Строка с грузами в формате JSON (будет обернута в квадратные скобки)
+    
+    Returns:
+        Список словарей с полями:
+            - 'project': номер проекта
+            - 'cargos': список словарей с артикулами и суммарными количествами для этого проекта
+    
+    Пример:
+        >>> cargos_by_project(cargos_string)
+        [
+            {
+                'project': '13407',
+                'cargos': [
+                    {'art': '81717161 Антикраж устройство Gillette Бабочка', 'count': 18},
+                    {'art': '81744724 / 81749803 / 81777488 / 81717188 Бок.навеска для однораз Gill.Oral Sim', 'count': 1}
+                ]
+            },
+            {
+                'project': '13379',
+                'cargos': [
+                    {'art': '81683069 Бокс для кассет Gillette узкий', 'count': 9}
+                ]
+            }
+        ]
+    """
+    # Если строка пустая или None
+    if not cargos_string or str(cargos_string).strip() == '':
+        return []
+    
+    # Очищаем строку и оборачиваем в квадратные скобки
+    cargos_string = str(cargos_string).strip()
+    if not cargos_string.startswith('['):
+        cargos_string = '[' + cargos_string + ']'
+    
+    # Парсим JSON
+    try:
+        cargos_list = json.loads(cargos_string)
+        if not isinstance(cargos_list, list):
+            cargos_list = [cargos_list]
+    except json.JSONDecodeError as e:
+        print(f"❌ Ошибка парсинга JSON: {e}")
+        return []
+    
+    # Собираем грузы по проектам
+    projects_dict = {}  # {project: {art: count}}
+    
+    for cargo_obj in cargos_list:
+        if not isinstance(cargo_obj, dict):
+            continue
+        
+        all_cargos = cargo_obj.get('all_cargos', [])
+        
+        if not all_cargos:
+            continue
+        
+        if isinstance(all_cargos, list):
+            for project_data in all_cargos:
+                if not isinstance(project_data, dict):
+                    continue
+                
+                # Получаем проект
+                project = project_data.get('project', '')
+                if not project:
+                    continue
+                
+                project = str(project)
+                
+                # Инициализируем проект в словаре
+                if project not in projects_dict:
+                    projects_dict[project] = {}
+                
+                # Получаем грузы в проекте
+                project_cargos = project_data.get('project_cargos', [])
+                
+                if isinstance(project_cargos, list):
+                    for cargo in project_cargos:
+                        if not isinstance(cargo, dict):
+                            continue
+                        
+                        art = cargo.get('art', '')
+                        count = cargo.get('count', 0)
+                        
+                        if art:
+                            # Приводим count к int
+                            try:
+                                count = int(count)
+                            except (ValueError, TypeError):
+                                count = 0
+                            
+                            # Суммируем по артикулу в рамках проекта
+                            if art not in projects_dict[project]:
+                                projects_dict[project][art] = 0
+                            projects_dict[project][art] += count
+    
+    # Преобразуем в список для результата
+    result = []
+    for project, cargos_dict in projects_dict.items():
+        cargos_list_result = [
+            {'art': art, 'count': count}
+            for art, count in cargos_dict.items()
+        ]
+        # Сортируем по артикулу
+        cargos_list_result.sort(key=lambda x: x['art'])
+        
+        result.append({
+            'project': project,
+            'cargos': cargos_list_result
+        })
+    
+    # Сортируем по номеру проекта
+    result.sort(key=lambda x: x['project'])
+    
+    return result
 
 # ============= ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ =============
 if __name__ == "__main__":
     # Пример 1: Поиск всех накладных, содержащих "102929"
-    print("🔍 Поиск накладных, содержащих '13717'")
+    
     print("-" * 60)
     criteria = [5, 21, 25, 30]
     nakl_list = otgruzheno("Безделева Анастасия Дмитриевна")
@@ -551,7 +664,9 @@ if __name__ == "__main__":
             cargos_str.append(gruz['row'][38])
     
     print (cargos_str)
-    print (cargos_by_art(",".join(cargos_str)))
+    print (cargos_by_project(",".join(cargos_str)))
+
+    # cargos_by_project
     
     
 
