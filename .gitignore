@@ -3,3 +3,4 @@ __pycache__/
 .env*
 .pyc
 certs/
+google_service_account.json
