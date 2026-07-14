@@ -52,6 +52,7 @@ def update_data_from_base() -> bool:
 
     # Явно берём 4 листа по именам
     sheet_names = ["Отгружено", "Контрольный диапазон", "Готовится к отгрузке", "Заявки"]
+    
     worksheets: Dict[str, gspread.Worksheet] = {}
     for name in sheet_names:
         try:

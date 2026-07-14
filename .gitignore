@@ -7,3 +7,6 @@ google_service_account.json
 *.feather
 base_data.json
 update_base_info.json
+bot_server.log
+cargos.txt
+planned.txt
