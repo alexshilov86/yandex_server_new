@@ -112,13 +112,13 @@ def update_data_from_base() -> bool:
         }
         sheets_stats.append(stats)
 
-        logger.info(
-            "Лист '%s': %d строк, %d колонок",
-            sheet_name, len(data_rows), n_cols
-        )
+        # logger.info(
+        #     "Лист '%s': %d строк, %d колонок",
+        #     sheet_name, len(data_rows), n_cols
+        # )
 
     total_rows = sum(s["total_rows"] for s in sheets_stats)
-    logger.info("Всего скачано строк по всем листам: %d", total_rows)
+    # logger.info("Всего скачано строк по всем листам: %d", total_rows)
 
     # Сохраняем данные
     try:
@@ -140,7 +140,7 @@ def update_data_from_base() -> bool:
     try:
         with open(update_info_file, "w", encoding="utf-8") as f:
             json.dump(info, f, ensure_ascii=False, indent=2)
-        logger.info("Информация об обновлении записана: %s", update_info_file)
+        # logger.info("Информация об обновлении записана: %s", update_info_file)
     except Exception as e:
         logger.error("Ошибка записи update_base_info: %s", e)
         return False
