@@ -4,3 +4,4 @@ __pycache__/
 .pyc
 certs/
 google_service_account.json
+*.feather
