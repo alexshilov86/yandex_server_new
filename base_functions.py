@@ -649,24 +649,7 @@ def cargos_by_project(cargos_string: str) -> List[Dict[str, Any]]:
     
     return result
 
-# ============= ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ =============
-if __name__ == "__main__":
-    # Пример 1: Поиск всех накладных, содержащих "102929"
-    
-    print("-" * 60)
-    criteria = [5, 21, 25, 30]
-    nakl_list = otgruzheno("Безделева Анастасия Дмитриевна")
-    otpravlenia = divide_on_otpr(nakl_list, criteria)
 
-    cargos_str = []
-    for otpr in otpravlenia:
-        for gruz in otpravlenia[otpr]:
-            cargos_str.append(gruz['row'][38])
-    
-    print (cargos_str)
-    print (cargos_by_project(",".join(cargos_str)))
-
-    # cargos_by_project
     
     
 
