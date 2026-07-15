@@ -145,10 +145,12 @@ def find_nakl_numbers(
             # Извлекаем дату отгрузки из column25 (индекс 24)
             send_date = extract_shipment_date(row[24]) if include_shipment_date else None
             status = row[21]
+            reciver_city = row[8]
             nakl_dict[nakl_str] = {
                 'nakl': nakl_str,
                 'send_date': send_date,
-                'status': status
+                'status': status,
+                'reciver_city': reciver_city
             }
     
     # Возвращаем в зависимости от параметра
